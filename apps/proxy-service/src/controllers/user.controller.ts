@@ -40,7 +40,7 @@ export class UserController {
   @UsePipes(new ZodValidationPipe(UserDto.partial()))
   @Patch('/:userId')
   async updateUser(
-    @Param('userId') userId: string,
+    @Param('userId') userId: number,
     @Body() body: Partial<UserDto>,
   ) {
     return this.writeAPI.send(

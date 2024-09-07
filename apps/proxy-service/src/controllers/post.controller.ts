@@ -27,7 +27,7 @@ export class PostController {
   ) {}
 
   @Get('/:userId')
-  async getPosts(@Param('userId') userId: string) {
+  async getPosts(@Param('userId') userId: number) {
     return this.readAPI.send({ cmd: Commands.GET_USER_POSTS }, { userId });
   }
 
@@ -40,7 +40,7 @@ export class PostController {
   @UsePipes(new ZodValidationPipe(PostDto.partial()))
   @Patch('/:postId')
   async updatePost(
-    @Param('postId') postId: string,
+    @Param('postId') postId: number,
     @Body() body: Partial<PostDto>,
   ) {
     return this.writeAPI.send(

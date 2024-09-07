@@ -22,7 +22,7 @@ export class CommentController {
   ) {}
 
   @Get('/:postId')
-  async getComments(@Param('postId') postId: string) {
+  async getComments(@Param('postId') postId: number) {
     return this.readAPI.send({ cmd: Commands.GET_POST_COMMENTS }, { postId });
   }
 
@@ -35,7 +35,7 @@ export class CommentController {
   @UsePipes(new ZodValidationPipe(CommentDto.partial()))
   @Patch('/:commentId')
   async updateComment(
-    @Param('commentId') commentId: string,
+    @Param('commentId') commentId: number,
     @Body() body: Partial<CommentDto>,
   ) {
     return this.writeAPI.send(

@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const CommentDto = z.object({
   id: z.number(),
   content: z.string(),
-  postId: z.string(),
+  postId: z.number(),
   userId: z.number(),
 });
 
