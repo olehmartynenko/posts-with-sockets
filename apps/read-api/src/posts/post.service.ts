@@ -18,7 +18,7 @@ export class PostService {
 
     const posts = await this.prisma.post.findMany();
 
-    this.cacheService.set('posts', posts, 60);
+    this.cacheService.set(`posts:${userId}`, posts, 60);
 
     return posts;
   }
