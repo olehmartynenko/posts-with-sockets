@@ -1,0 +1,1 @@
+# Posts app with microservices architecture using NestJS, Prisma (ORM), WebSockets, Redis (cache) and RabbitMQ (Message Broker).

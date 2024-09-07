@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/proxy-service/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/proxy-service/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/proxy-service",
+  "projects": {
+    "proxy-service": {
+      "type": "application",
+      "root": "apps/proxy-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/proxy-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/proxy-service/tsconfig.app.json"
+      }
+    },
+    "write-api": {
+      "type": "application",
+      "root": "apps/write-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/write-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/write-api/tsconfig.app.json"
+      }
+    },
+    "read-api": {
+      "type": "application",
+      "root": "apps/read-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/read-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/read-api/tsconfig.app.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    }
+  }
+}
