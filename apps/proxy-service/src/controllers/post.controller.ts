@@ -1,4 +1,10 @@
-import { Commands, Queues } from '@app/common';
+import {
+  Commands,
+  CreatePostDto,
+  PostDto,
+  Queues,
+  ZodValidationPipe,
+} from '@app/common';
 import {
   Body,
   Controller,
@@ -7,6 +13,7 @@ import {
   Param,
   Patch,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
@@ -24,6 +31,7 @@ export class PostController {
     return this.readAPI.send({ cmd: Commands.GET_USER_POSTS }, { userId });
   }
 
+  @UsePipes(new ZodValidationPipe(CreatePostDto))
   @Post()
   async createPost(
     @Body() body: { userId: string; content: string; title: string },
@@ -31,6 +39,7 @@ export class PostController {
     return this.writeAPI.send({ cmd: Commands.CREATE_POST }, body);
   }
 
+  @UsePipes(new ZodValidationPipe(PostDto.partial()))
   @Patch('/:postId')
   async updatePost(
     @Param('postId') postId: string,

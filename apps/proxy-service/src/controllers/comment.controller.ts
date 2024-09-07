@@ -1,4 +1,5 @@
-import { Commands, Queues } from '@app/common';
+import { Commands, Queues, ZodValidationPipe } from '@app/common';
+import { CommentDto, CreateCommentDto } from '@app/common';
 import {
   Body,
   Controller,
@@ -7,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
@@ -24,21 +26,17 @@ export class CommentController {
     return this.readAPI.send({ cmd: Commands.GET_POST_COMMENTS }, { postId });
   }
 
-  @Post('/:postId')
-  async createComment(
-    @Param('postId') postId: string,
-    @Body() body: { userId: string; content: string },
-  ) {
-    return this.writeAPI.send(
-      { cmd: Commands.CREATE_COMMENT },
-      { postId, ...body },
-    );
+  @UsePipes(new ZodValidationPipe(CreateCommentDto))
+  @Post()
+  async createComment(@Body() body: CreateCommentDto) {
+    return this.writeAPI.send({ cmd: Commands.CREATE_COMMENT }, body);
   }
 
+  @UsePipes(new ZodValidationPipe(CommentDto.partial()))
   @Patch('/:commentId')
   async updateComment(
     @Param('commentId') commentId: string,
-    @Body() body: { content: string },
+    @Body() body: Partial<CommentDto>,
   ) {
     return this.writeAPI.send(
       { cmd: Commands.UPDATE_COMMENT },
