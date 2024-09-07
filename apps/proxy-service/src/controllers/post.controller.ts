@@ -33,9 +33,7 @@ export class PostController {
 
   @UsePipes(new ZodValidationPipe(CreatePostDto))
   @Post()
-  async createPost(
-    @Body() body: { userId: string; content: string; title: string },
-  ) {
+  async createPost(@Body() body: CreatePostDto) {
     return this.writeAPI.send({ cmd: Commands.CREATE_POST }, body);
   }
 
@@ -43,7 +41,7 @@ export class PostController {
   @Patch('/:postId')
   async updatePost(
     @Param('postId') postId: string,
-    @Body() body: { content: string; title: string },
+    @Body() body: Partial<PostDto>,
   ) {
     return this.writeAPI.send(
       { cmd: Commands.UPDATE_POST },

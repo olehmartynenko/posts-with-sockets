@@ -33,7 +33,7 @@ export class UserController {
 
   @UsePipes(new ZodValidationPipe(CreateUserDto))
   @Post()
-  async createUser(@Body() body: { name: string; email: string }) {
+  async createUser(@Body() body: CreateUserDto) {
     return this.writeAPI.send({ cmd: Commands.CREATE_USER }, body);
   }
 
@@ -41,7 +41,7 @@ export class UserController {
   @Patch('/:userId')
   async updateUser(
     @Param('userId') userId: string,
-    @Body() body: { name: string; email: string },
+    @Body() body: Partial<UserDto>,
   ) {
     return this.writeAPI.send(
       { cmd: Commands.UPDATE_USER },
