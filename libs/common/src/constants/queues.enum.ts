@@ -3,15 +3,13 @@ type QueueInfo = {
   key: string;
 };
 
-const Queues = {
-  write: {
+export const Queues = {
+  WRITE: {
     name: 'write-queue',
     key: 'WRITE_QUEUE',
   },
-  read: {
+  READ: {
     name: 'read-queue',
     key: 'READ_QUEUE',
   },
 } as const satisfies Record<string, QueueInfo>;
-
-export default Queues;
