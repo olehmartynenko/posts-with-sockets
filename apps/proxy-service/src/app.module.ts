@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ProxyServiceService } from './proxy-service.service';
 import { BrokerModule, Queues } from '@app/common';
 import {
   CommentController,
@@ -13,6 +12,6 @@ import {
     BrokerModule.registerRmq(Queues.WRITE.key, Queues.WRITE.name),
   ],
   controllers: [UserController, PostController, CommentController],
-  providers: [ProxyServiceService],
+  providers: [],
 })
-export class ProxyServiceModule {}
+export class AppModule {}
