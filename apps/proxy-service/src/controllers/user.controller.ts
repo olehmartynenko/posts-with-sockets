@@ -1,4 +1,4 @@
-import { Queues } from '@app/common';
+import { Commands, Queues } from '@app/common';
 import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
@@ -13,11 +13,11 @@ export class UserController {
 
   @Get()
   async getUsers() {
-    return this.readAPI.send({ cmd: 'GET_USERS' }, {});
+    return this.readAPI.send({ cmd: Commands.GET_USERS }, {});
   }
 
   @Post()
   async createUser(@Body() body: { name: string; email: string }) {
-    return this.writeAPI.send({ cmd: 'CREATE_USER' }, body);
+    return this.writeAPI.send({ cmd: Commands.CREATE_USER }, body);
   }
 }
