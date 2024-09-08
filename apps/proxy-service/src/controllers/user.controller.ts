@@ -16,6 +16,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { z } from 'zod';
 
 @Controller('users')
 export class UserController {
@@ -31,21 +32,24 @@ export class UserController {
     return this.readAPI.send({ cmd: Commands.GET_USERS }, {});
   }
 
-  @UsePipes(new ZodValidationPipe(CreateUserDto))
+  @UsePipes(new ZodValidationPipe({ body: CreateUserDto }))
   @Post()
   async createUser(@Body() body: CreateUserDto) {
     return this.writeAPI.send({ cmd: Commands.CREATE_USER }, body);
   }
 
-  @UsePipes(new ZodValidationPipe(UserDto.partial()))
-  @Patch('/:userId')
-  async updateUser(
-    @Param('userId') userId: number,
-    @Body() body: Partial<UserDto>,
-  ) {
+  @UsePipes(
+    new ZodValidationPipe({
+      body: UserDto.partial(),
+      param: z.coerce.number(),
+    }),
+  )
+  @Patch('/:id')
+  async updateUser(@Param('id') id: string, @Body() body: Partial<UserDto>) {
+    console.log('Received message', { userId: parseInt(id), ...body });
     return this.writeAPI.send(
       { cmd: Commands.UPDATE_USER },
-      { userId, ...body },
+      { id: parseInt(id), ...body },
     );
   }
 }
