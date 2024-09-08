@@ -16,6 +16,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 import { z } from 'zod';
 
 @Controller('users')
@@ -28,13 +29,13 @@ export class UserController {
   ) {}
 
   @Get()
-  async getUsers() {
+  async getUsers(): Promise<Observable<UserDto[]>> {
     return this.readAPI.send({ cmd: Commands.GET_USERS }, {});
   }
 
   @UsePipes(new ZodValidationPipe({ body: CreateUserDto }))
   @Post()
-  async createUser(@Body() body: CreateUserDto) {
+  async createUser(@Body() body: CreateUserDto): Promise<Observable<UserDto>> {
     return this.writeAPI.send({ cmd: Commands.CREATE_USER }, body);
   }
 
@@ -45,8 +46,10 @@ export class UserController {
     }),
   )
   @Patch('/:id')
-  async updateUser(@Param('id') id: string, @Body() body: Partial<UserDto>) {
-    console.log('Received message', { userId: parseInt(id), ...body });
+  async updateUser(
+    @Param('id') id: string,
+    @Body() body: Partial<UserDto>,
+  ): Promise<Observable<UserDto>> {
     return this.writeAPI.send(
       { cmd: Commands.UPDATE_USER },
       { id: parseInt(id), ...body },

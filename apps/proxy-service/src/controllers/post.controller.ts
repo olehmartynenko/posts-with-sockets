@@ -16,6 +16,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 import { z } from 'zod';
 
 @Controller('posts')
@@ -27,14 +28,17 @@ export class PostController {
     private readonly readAPI: ClientProxy,
   ) {}
 
+  @UsePipes(new ZodValidationPipe({ param: z.coerce.number() }))
   @Get('/:userId')
-  async getPosts(@Param('userId') userId: number) {
+  async getPosts(
+    @Param('userId') userId: number,
+  ): Promise<Observable<PostDto>> {
     return this.readAPI.send({ cmd: Commands.GET_USER_POSTS }, { userId });
   }
 
   @UsePipes(new ZodValidationPipe({ body: CreatePostDto }))
   @Post()
-  async createPost(@Body() body: CreatePostDto) {
+  async createPost(@Body() body: CreatePostDto): Promise<Observable<PostDto>> {
     return this.writeAPI.send({ cmd: Commands.CREATE_POST }, body);
   }
 
@@ -48,7 +52,7 @@ export class PostController {
   async updatePost(
     @Param('postId') postId: number,
     @Body() body: Partial<PostDto>,
-  ) {
+  ): Promise<Observable<PostDto>> {
     return this.writeAPI.send(
       { cmd: Commands.UPDATE_POST },
       { postId, ...body },
