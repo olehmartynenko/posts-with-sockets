@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     CacheModule.register({
       useFactory: (config: ConfigService) => ({
         store: redisStore,
+        prefix: config.get('REDIS_PREFIX'),
         host: config.get('REDIS_HOST'),
         port: config.get('REDIS_PORT'),
       }),
