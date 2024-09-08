@@ -11,6 +11,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { z } from 'zod';
 
 @Controller('comments')
 export class CommentController {
@@ -26,21 +27,26 @@ export class CommentController {
     return this.readAPI.send({ cmd: Commands.GET_POST_COMMENTS }, { postId });
   }
 
-  @UsePipes(new ZodValidationPipe(CreateCommentDto))
+  @UsePipes(new ZodValidationPipe({ body: CreateCommentDto }))
   @Post()
   async createComment(@Body() body: CreateCommentDto) {
     return this.writeAPI.send({ cmd: Commands.CREATE_COMMENT }, body);
   }
 
-  @UsePipes(new ZodValidationPipe(CommentDto.partial()))
-  @Patch('/:commentId')
+  @UsePipes(
+    new ZodValidationPipe({
+      body: CommentDto.partial(),
+      param: z.coerce.number(),
+    }),
+  )
+  @Patch('/:id')
   async updateComment(
-    @Param('commentId') commentId: number,
+    @Param('id') id: number,
     @Body() body: Partial<CommentDto>,
   ) {
     return this.writeAPI.send(
       { cmd: Commands.UPDATE_COMMENT },
-      { commentId, ...body },
+      { id, ...body },
     );
   }
 }
