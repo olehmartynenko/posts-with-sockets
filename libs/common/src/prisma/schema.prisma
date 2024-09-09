@@ -38,3 +38,11 @@ model Comment {
   Post      Post     @relation(fields: [postId], references: [id])
   User      User     @relation(fields: [userId], references: [id])
 }
+
+model Logs {
+  id        Int     @id @default(autoincrement())
+  method    String
+  url       String
+  headers   String
+  body      String
+}
