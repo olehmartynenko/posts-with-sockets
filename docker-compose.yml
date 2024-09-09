@@ -1,0 +1,103 @@
+version: '3.8'
+services:
+  dev-db:
+    image: postgres:13
+    container_name: test-dev-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    restart: 'always'
+    ports:
+      - '5432:5432'
+    networks:
+      - test_network
+    volumes:
+      - db_data:/db
+
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: test-redis
+    restart: 'always'
+    ports:
+      - '6379:6379'
+    networks:
+      - test_network
+    volumes:
+      - type: tmpfs
+        target: /cache/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: test-rabbitmq
+    restart: 'always'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 7s
+      timeout: 10s
+      retries: 5
+    networks:
+      - test_network
+
+  proxy-service:
+    build:
+      context: ./
+      dockerfile: ./apps/proxy-service/Dockerfile
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    depends_on:
+      write-api:
+        condition: service_started
+      read-api:
+        condition: service_started
+    command: pnpm start
+    networks:
+      - test_network
+
+  write-api:
+    build:
+      context: ./
+      dockerfile: ./apps/write-api/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      dev-db:
+        condition: service_started
+      redis:
+        condition: service_started
+    command: pnpm start write-api
+    networks:
+      - test_network
+
+  read-api:
+    build:
+      context: ./
+      dockerfile: ./apps/read-api/Dockerfile
+    restart: 'on-failure'
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      dev-db:
+        condition: service_started
+      redis:
+        condition: service_started
+    command: pnpm start read-api
+    networks:
+      - test_network
+
+networks:
+  test_network:
+    name: test_network
+
+volumes:
+  db_data:
+    name: db_data
