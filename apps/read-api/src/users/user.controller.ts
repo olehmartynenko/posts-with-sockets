@@ -1,6 +1,11 @@
 import { Controller, Inject } from '@nestjs/common';
-import { BrokerService, Commands, UserDto } from '@app/common';
-import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
+import { BrokerService, Commands, UserDto, UserFilterDto } from '@app/common';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 import { UserService } from './user.service';
 
 @Controller()
@@ -11,9 +16,13 @@ export class UserController {
   ) {}
 
   @MessagePattern({ cmd: Commands.GET_USERS })
-  async getUsers(@Ctx() context: RmqContext): Promise<UserDto[]> {
+  async getUsers(
+    @Ctx() context: RmqContext,
+    @Payload()
+    data: { query: UserFilterDto & { cursor: number; pageSize: number } },
+  ): Promise<{ users: UserDto[]; cursor: number }> {
     this.brokerService.acknowledgeMessage(context);
 
-    return this.userService.getUsers();
+    return this.userService.getUsers(data.query);
   }
 }
