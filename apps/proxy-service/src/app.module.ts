@@ -6,6 +6,7 @@ import {
   UserController,
 } from './controllers';
 import { LogMiddleware } from './middlewares/log.middleware';
+import { BroadcastGateway } from './broadcast/broadcast.gateway';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { LogMiddleware } from './middlewares/log.middleware';
     PrismaModule,
   ],
   controllers: [UserController, PostController, CommentController],
-  providers: [],
+  providers: [BroadcastGateway],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

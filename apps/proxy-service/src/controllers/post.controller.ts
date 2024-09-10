@@ -18,6 +18,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { z } from 'zod';
+import { BroadcastGateway } from '../broadcast/broadcast.gateway';
 
 @Controller('posts')
 export class PostController {
@@ -26,6 +27,8 @@ export class PostController {
     private readonly writeAPI: ClientProxy,
     @Inject(Queues.READ.key)
     private readonly readAPI: ClientProxy,
+    @Inject(BroadcastGateway)
+    private readonly broadcastGateway: BroadcastGateway,
   ) {}
 
   @UsePipes(new ZodValidationPipe({ param: z.coerce.number() }))
@@ -39,7 +42,13 @@ export class PostController {
   @UsePipes(new ZodValidationPipe({ body: CreatePostDto }))
   @Post()
   async createPost(@Body() body: CreatePostDto): Promise<Observable<PostDto>> {
-    return this.writeAPI.send({ cmd: Commands.CREATE_POST }, body);
+    const createdPost = await this.writeAPI
+      .send({ cmd: Commands.CREATE_POST }, body)
+      .toPromise();
+
+    this.broadcastGateway.broadcastEvent('postCreated', createdPost);
+
+    return createdPost;
   }
 
   @UsePipes(
@@ -53,9 +62,12 @@ export class PostController {
     @Param('postId') postId: number,
     @Body() body: Partial<PostDto>,
   ): Promise<Observable<PostDto>> {
-    return this.writeAPI.send(
-      { cmd: Commands.UPDATE_POST },
-      { postId, ...body },
-    );
+    const updatedPost = await this.writeAPI
+      .send({ cmd: Commands.UPDATE_POST }, { postId, ...body })
+      .toPromise();
+
+    this.broadcastGateway.broadcastEvent('postUpdated', updatedPost);
+
+    return updatedPost;
   }
 }

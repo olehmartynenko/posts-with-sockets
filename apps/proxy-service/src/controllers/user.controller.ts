@@ -18,6 +18,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { z } from 'zod';
+import { BroadcastGateway } from '../broadcast/broadcast.gateway';
 
 @Controller('users')
 export class UserController {
@@ -26,6 +27,8 @@ export class UserController {
     private readonly writeAPI: ClientProxy,
     @Inject(Queues.READ.key)
     private readonly readAPI: ClientProxy,
+    @Inject(BroadcastGateway)
+    private readonly broadcastGateway: BroadcastGateway,
   ) {}
 
   @Get()
@@ -36,7 +39,13 @@ export class UserController {
   @UsePipes(new ZodValidationPipe({ body: CreateUserDto }))
   @Post()
   async createUser(@Body() body: CreateUserDto): Promise<Observable<UserDto>> {
-    return this.writeAPI.send({ cmd: Commands.CREATE_USER }, body);
+    const createdUser = await this.writeAPI
+      .send({ cmd: Commands.CREATE_USER }, body)
+      .toPromise();
+
+    this.broadcastGateway.broadcastEvent('userCreated', createdUser);
+
+    return createdUser;
   }
 
   @UsePipes(
@@ -50,9 +59,12 @@ export class UserController {
     @Param('id') id: string,
     @Body() body: Partial<UserDto>,
   ): Promise<Observable<UserDto>> {
-    return this.writeAPI.send(
-      { cmd: Commands.UPDATE_USER },
-      { id: parseInt(id), ...body },
-    );
+    const updatedUser = await this.writeAPI
+      .send({ cmd: Commands.UPDATE_USER }, { id: parseInt(id), ...body })
+      .toPromise();
+
+    this.broadcastGateway.broadcastEvent('userUpdated', updatedUser);
+
+    return updatedUser;
   }
 }

@@ -13,6 +13,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { z } from 'zod';
+import { BroadcastGateway } from '../broadcast/broadcast.gateway';
 
 @Controller('comments')
 export class CommentController {
@@ -21,6 +22,8 @@ export class CommentController {
     private readonly writeAPI: ClientProxy,
     @Inject(Queues.READ.key)
     private readonly readAPI: ClientProxy,
+    @Inject(BroadcastGateway)
+    private readonly broadcastGateway: BroadcastGateway,
   ) {}
 
   @UsePipes(new ZodValidationPipe({ param: z.coerce.number() }))
@@ -36,7 +39,13 @@ export class CommentController {
   async createComment(
     @Body() body: CreateCommentDto,
   ): Promise<Observable<CommentDto>> {
-    return this.writeAPI.send({ cmd: Commands.CREATE_COMMENT }, body);
+    const createdComment = await this.writeAPI
+      .send({ cmd: Commands.CREATE_COMMENT }, body)
+      .toPromise();
+
+    this.broadcastGateway.broadcastEvent('commentCreated', createdComment);
+
+    return createdComment;
   }
 
   @UsePipes(
@@ -50,9 +59,12 @@ export class CommentController {
     @Param('id') id: number,
     @Body() body: Partial<CommentDto>,
   ): Promise<Observable<CommentDto>> {
-    return this.writeAPI.send(
-      { cmd: Commands.UPDATE_COMMENT },
-      { id, ...body },
-    );
+    const updatedComment = await this.writeAPI
+      .send({ cmd: Commands.UPDATE_COMMENT }, { id, ...body })
+      .toPromise();
+
+    this.broadcastGateway.broadcastEvent('commentUpdated', updatedComment);
+
+    return updatedComment;
   }
 }
