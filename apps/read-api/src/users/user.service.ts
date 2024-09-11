@@ -23,7 +23,7 @@ export class UserService {
     if (cachedUsers) {
       return {
         users: cachedUsers,
-        cursor: cachedUsers[cachedUsers.length - 1].id,
+        cursor: cachedUsers.length ? cachedUsers[cachedUsers.length - 1].id : 0,
       };
     }
 
