@@ -4,6 +4,7 @@ import {
   RedisCacheService,
   PostDto,
   CreatePostDto,
+  TTL,
 } from '@app/common';
 
 @Injectable()
@@ -25,7 +26,7 @@ export class PostService {
       await this.cacheService.set(
         `posts:${postDto.userId}`,
         [...cachedPosts, post],
-        60,
+        TTL.POSTS,
       );
     }
 
@@ -46,7 +47,7 @@ export class PostService {
       await this.cacheService.set(
         `posts:${post.userId}`,
         cachedPosts.map((p) => (p.id === id ? post : p)),
-        60,
+        TTL.POSTS,
       );
     }
 

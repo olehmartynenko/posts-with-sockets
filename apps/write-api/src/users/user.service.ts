@@ -3,6 +3,7 @@ import {
   CreateUserDto,
   PrismaService,
   RedisCacheService,
+  TTL,
   UserDto,
 } from '@app/common';
 
@@ -63,7 +64,7 @@ export class UserService {
           cachedUsers.map((cachedUser) =>
             cachedUser.id === user.id ? user : cachedUser,
           ),
-          60,
+          TTL.USERS,
         );
       }
     }

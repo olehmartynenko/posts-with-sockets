@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   PrismaService,
   RedisCacheService,
+  TTL,
   UserDto,
   UserFilterDto,
 } from '@app/common';
@@ -18,8 +19,6 @@ export class UserService {
     const cachedUsers = await this.cacheService.get<UserDto[]>(
       `users-${JSON.stringify(query)}`,
     );
-
-    console.log(cachedUsers);
 
     if (cachedUsers) {
       return {
@@ -42,7 +41,7 @@ export class UserService {
       cursor: query.cursor ? { id: query.cursor } : undefined,
     });
 
-    this.cacheService.set(`users-${JSON.stringify(query)}`, users, 60);
+    this.cacheService.set(`users-${JSON.stringify(query)}`, users, TTL.USERS);
 
     return { users, cursor: users.length ? users[users.length - 1].id : 0 };
   }

@@ -21,7 +21,7 @@ export class BroadcastGateway
   }
 
   handleDisconnect(client: Socket) {
-    client.emit('disconnect', 'Successfully disconnected from the server');
+    client.emit('disconnection', 'Successfully disconnected from the server');
   }
 
   broadcastEvent(eventName: string, data: any) {

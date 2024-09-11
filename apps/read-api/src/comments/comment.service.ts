@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService, RedisCacheService, CommentDto } from '@app/common';
+import { PrismaService, RedisCacheService, CommentDto, TTL } from '@app/common';
 
 @Injectable()
 export class CommentService {
@@ -18,7 +18,7 @@ export class CommentService {
 
     const comments = await this.prisma.comment.findMany();
 
-    this.cacheService.set(`comments:${postId}`, comments, 30);
+    this.cacheService.set(`comments:${postId}`, comments, TTL.COMMENTS);
 
     return comments;
   }
