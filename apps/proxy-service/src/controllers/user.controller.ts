@@ -3,6 +3,7 @@ import {
   CreateUserDto,
   Queues,
   UserDto,
+  UserFilterDto,
   ZodValidationPipe,
 } from '@app/common';
 import {
@@ -13,6 +14,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -31,9 +33,21 @@ export class UserController {
     private readonly broadcastGateway: BroadcastGateway,
   ) {}
 
+  @UsePipes(
+    new ZodValidationPipe({
+      query: z.object({
+        cursor: z.coerce.number(),
+        pageSize: z.coerce.number(),
+        email: z.string().optional(),
+        name: z.string().optional(),
+      }),
+    }),
+  )
   @Get()
-  async getUsers(): Promise<Observable<UserDto[]>> {
-    return this.readAPI.send({ cmd: Commands.GET_USERS }, {});
+  async getUsers(
+    @Query() query: UserFilterDto & { cursor: number; pageSize: number },
+  ): Promise<Observable<{ users: UserDto[]; cursor: number }>> {
+    return this.readAPI.send({ cmd: Commands.GET_USERS }, { query });
   }
 
   @UsePipes(new ZodValidationPipe({ body: CreateUserDto }))

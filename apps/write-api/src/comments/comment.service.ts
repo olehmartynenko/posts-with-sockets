@@ -4,6 +4,7 @@ import {
   RedisCacheService,
   CommentDto,
   CreateCommentDto,
+  TTL,
 } from '@app/common';
 
 @Injectable()
@@ -25,7 +26,7 @@ export class CommentService {
       await this.cacheService.set(
         `comments:${comment.postId}`,
         [...cachedComments, comment],
-        60,
+        TTL.COMMENTS,
       );
     }
 
@@ -49,7 +50,7 @@ export class CommentService {
       await this.cacheService.set(
         `comments:${comment.postId}`,
         cachedComments.map((c) => (c.id === id ? comment : c)),
-        60,
+        TTL.COMMENTS,
       );
     }
 

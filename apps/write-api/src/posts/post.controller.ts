@@ -15,7 +15,7 @@ export class PostController {
     @Inject(PostService) private readonly postService: PostService,
   ) {}
 
-  @MessagePattern({ cmd: Commands.GET_USER_POSTS })
+  @MessagePattern({ cmd: Commands.CREATE_POST })
   async createPost(
     @Ctx() context: RmqContext,
     @Payload() data: CreatePostDto,

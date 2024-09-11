@@ -15,4 +15,4 @@ COPY libs libs
 
 COPY apps/proxy-service apps/proxy-service
 
-CMD sh -c "cd libs/common/src && npx prisma migrate deploy && pnpm start"
+RUN cd libs/common/src && npx prisma generate
